@@ -1,0 +1,56 @@
+name: deploy
+
+on:
+  push:
+    branches: [main, master]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: version
+        id: ver
+        run: |
+          VER=$(python3 -c "import pathlib,re; t=pathlib.Path('app.py').read_text(); print(re.search(r'VERSION = \"([^\"]+)\"', t).group(1))")
+          echo "ver=$VER" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VER" >> "$GITHUB_OUTPUT"
+          echo "zip=AW_FutaDepot_${VER}.zip" >> "$GITHUB_OUTPUT"
+
+      - name: pack
+        run: |
+          mkdir -p /tmp/pack
+          rsync -a --exclude '__pycache__' --exclude '*.pyc' --exclude '.iconcache' --exclude 'win/rsrc.syso' --exclude 'AW_FutaDepot.exe' --exclude '.git' --exclude '.github' ./ /tmp/pack/AW_FutaDepot/
+          (cd /tmp/pack && zip -r "$GITHUB_WORKSPACE/${{ steps.ver.outputs.zip }}" AW_FutaDepot)
+          mkdir -p channel
+          cat > channel/version.json << EOF
+          {
+            "version": "${{ steps.ver.outputs.ver }}",
+            "zip": "https://github.com/${{ github.repository }}/releases/download/${{ steps.ver.outputs.tag }}/${{ steps.ver.outputs.zip }}",
+            "notes": "github actions"
+          }
+          EOF
+
+      - name: publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: ${{ steps.ver.outputs.tag }}
+          files: ${{ steps.ver.outputs.zip }}
+          fail_on_unmatched_files: true
+          generate_release_notes: false
+
+      - name: commit channel
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add channel/version.json
+          git diff --cached --quiet && exit 0
+          git commit -m "channel ${{ steps.ver.outputs.ver }}"
+          git push

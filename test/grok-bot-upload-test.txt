@@ -1,4 +1,0 @@
-Тестовая заливка от New Bot
-Дата: 2026-09-22 (Europe/Moscow)
-Путь: test/grok-bot-upload-test.txt
-Источник: gh CLI на компьютере ассистента

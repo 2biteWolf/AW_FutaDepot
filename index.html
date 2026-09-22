@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AW_FutaDepot</title>
+<link rel="icon" href="/icon128.png">
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0b12;--fill:#222034;--hover:#2e2c42;--lime:#99e550;--muted:#6a8a4a;
+  --text:#e8e4d8;--dim:#8a8678;--line:#99e550;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:"IBM Plex Mono",Consolas,monospace;font-size:13px}
+button,input{font:inherit;color:inherit;background:var(--fill);border:1px solid var(--line);border-radius:0;padding:6px 10px;cursor:pointer}
+button:hover,input:hover{background:var(--hover)}
+button.primary{background:var(--lime);color:#0d0b12;font-weight:600}
+button.ghost{border-color:#3a3848;color:var(--dim)}
+button.danger{border-color:#c44;color:#f88}
+button:disabled{opacity:.4;cursor:not-allowed}
+input{min-width:140px}
+input[type=checkbox]{min-width:auto;width:auto}
+.app{display:flex;flex-direction:column;height:100%}
+.top{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--line);background:var(--fill);flex-wrap:wrap}
+.brand{font-family:VT323,monospace;font-size:28px;color:var(--lime);letter-spacing:1px}
+.tabs button{border:1px solid var(--line);background:transparent;color:var(--dim)}
+.tabs button.on{background:var(--lime);color:#0d0b12}
+.nav{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid #3a3848;background:#16141c}
+.nav button{min-width:44px;min-height:36px;font-family:VT323,monospace;font-size:22px}
+.nav button:disabled{opacity:.25;cursor:default}
+.nav .navhome{min-width:88px}
+.nav .navgo{min-width:108px}
+.grow{flex:1}
+.rootbox{display:flex;align-items:center;gap:6px;max-width:46%}
+.rootbox span{color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.main{display:flex;flex:1;min-height:0}
+.side{width:220px;border-right:1px solid #3a3848;background:#16141c;padding:8px;overflow:auto}
+.side h3{font-family:VT323,monospace;font-size:20px;color:var(--lime);margin:8px 4px}
+.cat{display:flex;justify-content:space-between;align-items:center;padding:8px;border:1px solid transparent;cursor:pointer;margin-bottom:2px}
+.cat:hover{background:var(--hover)}
+.cat.on{border-color:var(--line);background:var(--fill)}
+.cat .n{color:var(--muted)}
+.plus{width:100%;margin-top:8px}
+.content{flex:1;display:flex;flex-direction:column;min-width:0}
+.bar{display:flex;gap:8px;align-items:center;padding:8px 12px;border-bottom:1px solid #3a3848;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;padding:12px;overflow:auto;flex:1}
+.list{display:flex;flex-direction:column;gap:4px;padding:12px;overflow:auto;flex:1}
+.card{border:1px solid #3a3848;background:var(--fill);padding:10px;cursor:pointer;min-height:92px;display:flex;gap:10px}
+.card:hover{border-color:var(--line);background:var(--hover)}
+.card img{width:32px;height:32px;image-rendering:pixelated;flex:none}
+.card .name{font-family:VT323,monospace;font-size:22px}
+.badge{display:inline-block;font-size:10px;letter-spacing:1px;border:1px solid var(--muted);color:var(--muted);padding:1px 6px;margin-right:4px}
+.badge.ok{border-color:var(--lime);color:var(--lime)}
+.badge.off{border-color:#666;color:#888}
+.detail{width:340px;border-left:1px solid #3a3848;background:#16141c;padding:12px;overflow:auto}
+.detail h2{font-family:VT323,monospace;font-size:28px;color:var(--lime);margin-bottom:8px}
+.row{margin:8px 0;color:var(--dim)}
+.row b{color:var(--text);font-weight:600}
+.actions{display:flex;flex-direction:column;gap:6px;margin:12px 0}
+.log{background:#000;border:1px solid #3a3848;padding:8px;height:120px;overflow:auto;color:var(--lime);font-size:11px;white-space:pre-wrap}
+.home{padding:16px;overflow:auto;flex:1}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.tile{border:1px solid var(--line);background:var(--fill);min-height:120px;padding:16px;cursor:pointer}
+.tile:hover{background:var(--hover)}
+.tile .big{font-family:VT323,monospace;font-size:36px;color:var(--lime)}
+.item{display:flex;justify-content:space-between;align-items:center;border:1px solid #3a3848;background:var(--fill);padding:8px 10px;margin-bottom:6px;gap:8px}
+.foot{border-top:1px solid #3a3848;padding:6px 12px;color:var(--dim);font-size:11px}
+.hidden{display:none !important}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center}
+.box{background:var(--bg);border:1px solid var(--line);padding:16px;width:440px}
+.box h2{font-family:VT323,monospace;font-size:26px;color:var(--lime);margin-bottom:10px}
+.box input{width:100%;margin-top:8px}
+.tag{font-size:10px;color:var(--lime);letter-spacing:1px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand">AW_FutaDepot</div>
+    <div class="tabs">
+      <button id="tabLib" class="on" type="button">LIBRARY</button>
+      <button id="tabStore" type="button">NET INSTALL</button>
+      <button id="tabPaths" type="button">PATHS</button>
+      <button id="tabSet" type="button">SETTINGS</button>
+      <button id="tabBox" type="button">TOOLBOX</button>
+    </div>
+    <div class="grow"></div>
+    <div class="rootbox">
+      <span id="rootLabel">root</span>
+      <button id="btnCopyRoot" class="ghost" type="button">COPY</button>
+      <button id="btnOpenRoot" class="ghost" type="button">OPEN</button>
+    </div>
+    <button id="btnScan" type="button">SCAN</button>
+    <button id="btnLang" class="ghost" type="button">RU / EN</button>
+  </div>
+  <div class="nav">
+    <button id="btnBack" type="button" title="back">←</button>
+    <button id="btnFwd" type="button" title="forward">→</button>
+    <button id="btnNavHome" class="navhome" type="button">HOME</button>
+    <button id="btnRefresh" class="navgo" type="button">REFRESH</button>
+    <span id="navWhere" class="row" style="margin:0 8px">LIBRARY / HOME</span>
+  </div>
+  <div class="main" id="viewLib">
+    <div class="side">
+      <button id="btnHome" class="plus" type="button">HOME</button>
+      <h3>CATEGORIES</h3>
+      <div id="cats"></div>
+      <button class="plus" id="btnAdd" type="button">+ ADD FOLDER</button>
+    </div>
+    <div class="content">
+      <div class="bar">
+        <span id="crumb">HOME</span>
+        <button id="btnCatFolder" class="ghost hidden" type="button">OPEN FOLDER</button>
+        <button id="btnAddFile" class="ghost hidden" type="button">ADD FILE</button>
+        <input id="q" placeholder="search">
+        <button id="btnGrid" class="on" type="button">GRID</button>
+        <button id="btnList" type="button">LIST</button>
+      </div>
+      <div id="home" class="home"></div>
+      <div id="units" class="grid hidden"></div>
+    </div>
+    <div class="detail hidden" id="detail"></div>
+  </div>
+  <div class="main hidden" id="viewStore">
+    <div class="content" style="padding:12px;overflow:auto">
+      <div class="bar">
+        <span>NET INSTALL</span>
+        <input id="sq" placeholder="chrome, vpn, git, figma">
+        <button id="btnStore" type="button">SEARCH</button>
+      </div>
+      <p class="row" style="padding:0 8px">Click INSTALL. Windows runs winget. List is real apps, not table headers.</p>
+      <div id="storeList" style="padding:8px"></div>
+    </div>
+  </div>
+  <div class="main hidden" id="viewPaths">
+    <div class="content" style="padding:16px;overflow:auto">
+      <h3 style="font-family:VT323;font-size:28px;color:var(--lime)">PATHS</h3>
+      <p class="row">One install folder per category.</p>
+      <div id="pathTable"></div>
+      <button class="primary" id="btnSavePaths" type="button" style="margin-top:12px">SAVE</button>
+    </div>
+  </div>
+  <div class="main hidden" id="viewSet">
+    <div class="content" style="padding:16px;overflow:auto">
+      <h3 style="font-family:VT323;font-size:28px;color:var(--lime)">SETTINGS</h3>
+      <p class="row">Pack lives in one folder. Drop it on a USB / second disk and run the exe from there.</p>
+      <div class="row">library root</div>
+      <div class="item"><input id="setRoot" style="flex:1"><button id="btnPickRoot" type="button">BROWSE</button></div>
+      <div class="row">install this pack onto a drive</div>
+      <div id="driveList"></div>
+      <div class="item">
+        <label><input id="setAuto" type="checkbox"> autostart with Windows</label>
+        <button id="btnSaveSet" class="primary" type="button">SAVE</button>
+      </div>
+    </div>
+  </div>
+  <div class="main hidden" id="viewBox">
+    <div class="content" style="padding:16px;overflow:auto">
+      <h3 style="font-family:VT323;font-size:28px;color:var(--lime)">TOOLBOX</h3>
+      <p class="row">Working now: proxy for downloads + open Windows panels. Ghost Mode modules plug in later.</p>
+      <div class="row">HTTP proxy for winget / net install</div>
+      <div class="item"><input id="setProxy" placeholder="http://127.0.0.1:7890" style="flex:1">
+        <label><input id="setProxyOn" type="checkbox"> ON</label>
+        <button id="btnSaveProxy" class="primary" type="button">SAVE</button>
+      </div>
+      <div class="tiles" style="margin-top:12px">
+        <div class="tile" id="boxDef"><div class="big">DEFENDER</div><div class="row">opens Windows Security</div></div>
+        <div class="tile" id="boxAct"><div class="big">ACTIVATION</div><div class="row">opens Windows activation</div></div>
+        <div class="tile" id="boxNet"><div class="big">NETWORK</div><div class="row">opens network settings</div></div>
+        <div class="tile" id="boxUp"><div class="big">UPDATE</div><div class="row">opens Windows Update</div></div>
+        <div class="tile" id="boxStart"><div class="big">STARTUP</div><div class="row">opens startup apps</div></div>
+        <div class="tile" id="boxGhost"><div class="big">GHOST</div><div class="row">slot for Ghost Mode Toolbox</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot" id="foot">starting</div>
+</div>
+<div id="modal" class="modal hidden">
+  <div class="box">
+    <h2>ADD FOLDER</h2>
+    <input id="newName" placeholder="Games">
+    <input id="newRoot" placeholder="folder path or use BROWSE">
+    <input id="newTarget" placeholder="install path D:/Games">
+    <div class="actions">
+      <button id="btnBrowseFolder" type="button">BROWSE</button>
+      <button class="primary" id="btnAddOk" type="button">ADD</button>
+      <button class="ghost" id="btnAddCancel" type="button">CANCEL</button>
+    </div>
+  </div>
+</div>
+<script>
+const I18N = {
+  en: {search:'search', silent:'SILENT INSTALL', run:'RUN AS-IS', folder:'OPEN FOLDER', del:'DELETE'},
+  ru: {search:'поиск', silent:'ТИХАЯ УСТАНОВКА', run:'ЗАПУСК КАК ЕСТЬ', folder:'ОТКРЫТЬ ПАПКУ', del:'УДАЛИТЬ'}
+};
+let lang = (navigator.language || 'en').toLowerCase().startsWith('ru') ? 'ru' : 'en';
+let viewMode = 'grid';
+let current = null;
+let activeTab = 'lib';
+let quietNav = false;
+let hist = [{tab:'lib', cat:null}];
+let histI = 0;
+let state = {categories: [], root: '', version: ''};
+function t(k){return I18N[lang][k] || k}
+function foot(s){document.getElementById('foot').textContent = s}
+function detailLog(s){
+  const el = document.querySelector('#detail .log');
+  foot(s);
+  if (el) el.textContent += s + '\n';
+}
+async function api(path, body){
+  const opt = body === undefined ? {} : {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)};
+  const res = await fetch(path, opt);
+  const data = await res.json().catch(() => ({ok:false, error:'bad json'}));
+  if (!res.ok && !data.error) data.error = 'http ' + res.status;
+  return data;
+}
+function tab(name){
+  activeTab = name;
+  document.getElementById('viewLib').classList.toggle('hidden', name !== 'lib');
+  document.getElementById('viewStore').classList.toggle('hidden', name !== 'store');
+  document.getElementById('viewPaths').classList.toggle('hidden', name !== 'paths');
+  document.getElementById('viewSet').classList.toggle('hidden', name !== 'set');
+  document.getElementById('viewBox').classList.toggle('hidden', name !== 'box');
+  document.getElementById('tabLib').classList.toggle('on', name === 'lib');
+  document.getElementById('tabStore').classList.toggle('on', name === 'store');
+  document.getElementById('tabPaths').classList.toggle('on', name === 'paths');
+  document.getElementById('tabSet').classList.toggle('on', name === 'set');
+  document.getElementById('tabBox').classList.toggle('on', name === 'box');
+  if (name === 'store') loadStore();
+  if (name === 'paths') renderPaths();
+  if (name === 'set' || name === 'box') fillSettings();
+  if (name !== 'lib') document.getElementById('detail').classList.add('hidden');
+  pushHist();
+  paintNav();
+}
+function snap(){ return {tab: activeTab, cat: current}; }
+function sameSnap(a,b){ return !!a && !!b && a.tab===b.tab && a.cat===b.cat; }
+function pushHist(){
+  if (quietNav) return;
+  const s = snap();
+  if (sameSnap(hist[histI], s)) return;
+  hist = hist.slice(0, histI + 1);
+  hist.push(s);
+  histI = hist.length - 1;
+}
+function applySnap(s){
+  quietNav = true;
+  current = s.cat;
+  tab(s.tab);
+  if (s.tab === 'lib') renderAll();
+  quietNav = false;
+  paintNav();
+}
+function paintNav(){
+  document.getElementById('btnBack').disabled = histI <= 0;
+  document.getElementById('btnFwd').disabled = histI >= hist.length - 1;
+  const names = {lib:'LIBRARY', store:'NET INSTALL', paths:'PATHS', set:'SETTINGS', box:'TOOLBOX'};
+  const where = (names[activeTab] || activeTab) + ' / ' + (activeTab==='lib' ? (current || 'HOME') : '—');
+  document.getElementById('navWhere').textContent = where;
+}
+function navBack(){
+  const det = document.getElementById('detail');
+  if (!det.classList.contains('hidden')) { det.classList.add('hidden'); return; }
+  if (histI <= 0) return;
+  histI -= 1;
+  applySnap(hist[histI]);
+}
+function navFwd(){
+  if (histI >= hist.length - 1) return;
+  histI += 1;
+  applySnap(hist[histI]);
+}
+function goHome(){
+  current = null;
+  document.getElementById('detail').classList.add('hidden');
+  if (activeTab !== 'lib') tab('lib');
+  else { renderAll(); pushHist(); paintNav(); }
+}
+async function loadState(){
+  const data = await api('/api/state');
+  if (!data.ok) { foot(data.error || 'state fail'); return; }
+  state = data;
+  document.getElementById('rootLabel').textContent = data.root;
+  renderAll();
+  foot('AW_FutaDepot ' + data.version + ' · ' + data.categories.length + ' cats');
+}
+async function scan(){
+  foot('scan...');
+  const data = await api('/api/scan', {});
+  if (!data.ok) { foot(data.error || 'scan fail'); return; }
+  state.categories = data.categories;
+  state.root = data.root;
+  document.getElementById('rootLabel').textContent = data.root;
+  renderAll();
+  foot('scan ok');
+}
+function renderCats(){
+  document.getElementById('cats').innerHTML = (state.categories || []).map(c =>
+    `<div class="cat ${current===c.id?'on':''}" data-id="${esc(c.id)}"><span>${esc(c.id)}</span><span class="n">${c.units.length}</span></div>`
+  ).join('');
+  document.querySelectorAll('#cats .cat').forEach(el => {
+    el.onclick = () => openCat(el.getAttribute('data-id'));
+  });
+}
+function renderHome(){
+  const home = document.getElementById('home');
+  const units = document.getElementById('units');
+  const catBtns = current ? false : true;
+  document.getElementById('btnCatFolder').classList.toggle('hidden', !current);
+  document.getElementById('btnAddFile').classList.toggle('hidden', !current);
+  if (current) { home.classList.add('hidden'); units.classList.remove('hidden'); return; }
+  units.classList.add('hidden'); home.classList.remove('hidden');
+  document.getElementById('crumb').textContent = 'HOME';
+  document.getElementById('detail').classList.add('hidden');
+  home.innerHTML = `<div class="tiles">` + (state.categories || []).map(c =>
+    `<div class="tile" data-id="${esc(c.id)}"><div class="big">${esc(c.id)}</div><div>${c.units.length}</div><div class="row">${esc(c.target || 'path not set')}</div></div>`
+  ).join('') + `</div>`;
+  home.querySelectorAll('.tile').forEach(el => el.onclick = () => openCat(el.getAttribute('data-id')));
+}
+function openCat(id){
+  current = id;
+  document.getElementById('crumb').textContent = id;
+  document.getElementById('detail').classList.add('hidden');
+  if (activeTab !== 'lib') tab('lib');
+  else renderAll();
+  pushHist();
+  paintNav();
+}
+function catById(id){return (state.categories || []).find(c => c.id === id)}
+function renderUnits(){
+  const box = document.getElementById('units');
+  const home = document.getElementById('home');
+  if (!current) { home.classList.remove('hidden'); box.classList.add('hidden'); return; }
+  home.classList.add('hidden'); box.classList.remove('hidden');
+  box.className = viewMode === 'grid' ? 'grid' : 'list';
+  const q = (document.getElementById('q').value || '').toLowerCase();
+  const cat = catById(current);
+  if (!cat) { box.innerHTML = ''; return; }
+  const items = cat.units.filter(u => (u.name || '').toLowerCase().includes(q));
+  box.innerHTML = items.map(u => {
+    const icon = u.icon ? `<img src="${esc(u.icon)}" alt="">` : `<img src="/icon128.png" alt="">`;
+    return `<div class="card" data-id="${esc(u.id)}">${icon}<div><div class="name">${esc(u.name)}</div><div><span class="badge">${esc(u.kind)}</span><span class="badge ${u.silent?'ok':'off'}">${u.silent?'SILENT OK':'RUN ONLY'}</span></div><div class="row">${esc(u.file || '-')}</div></div></div>`;
+  }).join('');
+  box.querySelectorAll('.card').forEach(el => {
+    el.onclick = () => openUnit(current, el.getAttribute('data-id'));
+  });
+}
+function openUnit(cid, uid){
+  const cat = catById(cid);
+  const u = cat.units.find(x => x.id === uid);
+  if (!u) return;
+  const d = document.getElementById('detail');
+  d.classList.remove('hidden');
+  const target = cat.target ? (cat.target.replace(/[\\/]+$/, '') + '/' + u.id) : 'SET PATH FIRST';
+  const icon = u.icon ? `<img src="${esc(u.icon)}" style="width:32px;height:32px">` : '';
+  d.innerHTML = `${icon}<h2>${esc(u.name)}</h2>
+    <div class="row">file <b>${esc(u.file || '-')}</b></div>
+    <div class="row">kind <b>${esc(u.kind)}</b></div>
+    <div class="row">engine <b>${esc(u.engine)}</b></div>
+    <div class="row">install to <b>${esc(target)}</b></div>
+    <div class="actions">
+      <button class="primary" id="actSilent" ${u.silent?'':'disabled'}>${t('silent')}</button>
+      <button id="actRun" ${u.canLaunch?'':'disabled'}>${t('run')}</button>
+      <button class="ghost" id="actFolder">${t('folder')}</button>
+      <button class="danger" id="actDel">${t('del')}</button>
+    </div>
+    <div class="log">ready\n</div>`;
+  document.getElementById('actSilent').onclick = async () => {
+    const r = await api('/api/silent', {category: cid, unit: uid});
+    detailLog(r.ok ? ('silent start · ' + (r.target || '')) : (r.error || 'fail'));
+  };
+  document.getElementById('actRun').onclick = async () => {
+    const r = await api('/api/run', {category: cid, unit: uid});
+    detailLog(r.ok ? ('run ' + (u.file || '')) : (r.error || 'fail'));
+  };
+  document.getElementById('actFolder').onclick = async () => {
+    const r = await api('/api/open', {path: u.folder});
+    detailLog(r.ok ? ('open ' + u.folder) : (r.error || 'fail'));
+  };
+  document.getElementById('actDel').onclick = async () => {
+    const r = await api('/api/delete', {category: cid, unit: uid});
+    if (!r.ok) { detailLog(r.error || 'delete fail'); return; }
+    state.categories = r.categories;
+    document.getElementById('detail').classList.add('hidden');
+    renderAll();
+    foot('deleted ' + u.name);
+  };
+}
+async function loadStore(){
+  const q = document.getElementById('sq').value || '';
+  const data = await api('/api/store?q=' + encodeURIComponent(q));
+  const box = document.getElementById('storeList');
+  if (!data.items || !data.items.length) {
+    box.innerHTML = '<div class="row">' + (data.error || 'empty') + '</div>';
+    return;
+  }
+  box.innerHTML = data.items.map(s =>
+    `<div class="item"><div><div class="tag">${esc(s.tag || '')}</div><b>${esc(s.name)}</b><div class="row">${esc(s.id)}</div></div><button class="primary" data-id="${esc(s.id)}">INSTALL</button></div>`
+  ).join('');
+  box.querySelectorAll('button').forEach(btn => {
+    btn.onclick = async () => {
+      btn.disabled = true;
+      foot('install ' + btn.getAttribute('data-id'));
+      const r = await api('/api/store', {id: btn.getAttribute('data-id')});
+      foot(r.ok ? ('installed ' + btn.getAttribute('data-id')) : (r.error || r.err || 'install fail'));
+      btn.disabled = false;
+    };
+  });
+}
+function renderPaths(){
+  document.getElementById('pathTable').innerHTML = (state.categories || []).map(c =>
+    `<div class="item"><b style="width:140px">${esc(c.id)}</b><input data-id="${esc(c.id)}" value="${esc(c.target||'')}" style="flex:1"></div>`
+  ).join('');
+}
+async function savePaths(){
+  const paths = {};
+  document.querySelectorAll('#pathTable input').forEach(inp => { paths[inp.getAttribute('data-id')] = inp.value.trim(); });
+  const r = await api('/api/paths', {paths});
+  if (!r.ok) { foot(r.error || 'save fail'); return; }
+  await loadState();
+  foot('paths saved');
+}
+async function addCat(){
+  const name = document.getElementById('newName').value.trim();
+  const root = document.getElementById('newRoot').value.trim();
+  const target = document.getElementById('newTarget').value.trim();
+  const r = await api('/api/category', {id:name, root:root, target:target});
+  if (!r.ok) { foot(r.error || 'add fail'); return; }
+  state.categories = r.categories;
+  document.getElementById('modal').classList.add('hidden');
+  renderAll();
+  foot('added ' + name);
+}
+function renderAll(){
+  document.getElementById('q').placeholder = t('search');
+  renderCats();
+  renderHome();
+  renderUnits();
+}
+function esc(s){
+  return String(s ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function fillSettings(){
+  const cfg = state.config || {};
+  document.getElementById('setRoot').value = cfg.libraryRoot || state.root || '';
+  document.getElementById('setAuto').checked = !!cfg.autostart;
+  document.getElementById('setProxy').value = cfg.proxyHttp || '';
+  document.getElementById('setProxyOn').checked = !!cfg.proxyEnabled;
+  const drives = state.drives || [];
+  document.getElementById('driveList').innerHTML = drives.map(d =>
+    `<div class="item"><b>${esc(d.path)}</b><span class="row">${Math.round((d.free||0)/1e9)} GB free</span><button data-path="${esc(d.path)}" type="button">INSTALL PACK HERE</button></div>`
+  ).join('') || '<div class="row">no drives listed</div>';
+  document.querySelectorAll('#driveList button').forEach(btn => {
+    btn.onclick = async () => {
+      btn.disabled = true;
+      const r = await api('/api/install-pack', {path: btn.getAttribute('data-path')});
+      foot(r.ok ? ('pack -> ' + r.dest) : (r.error || 'pack fail'));
+      btn.disabled = false;
+    };
+  });
+}
+document.getElementById('tabLib').onclick = () => tab('lib');
+document.getElementById('tabStore').onclick = () => tab('store');
+document.getElementById('tabPaths').onclick = () => tab('paths');
+document.getElementById('tabSet').onclick = () => tab('set');
+document.getElementById('tabBox').onclick = () => tab('box');
+document.getElementById('btnScan').onclick = scan;
+document.getElementById('btnHome').onclick = goHome;
+document.getElementById('btnNavHome').onclick = goHome;
+document.getElementById('btnBack').onclick = navBack;
+document.getElementById('btnFwd').onclick = navFwd;
+document.getElementById('btnRefresh').onclick = async () => {
+  if (activeTab === 'lib') await scan();
+  else if (activeTab === 'store') await loadStore();
+  else await loadState();
+  paintNav();
+};
+document.getElementById('btnLang').onclick = () => { lang = lang === 'en' ? 'ru' : 'en'; renderAll(); };
+document.getElementById('btnGrid').onclick = () => { viewMode='grid'; document.getElementById('btnGrid').classList.add('on'); document.getElementById('btnList').classList.remove('on'); renderUnits(); };
+document.getElementById('btnList').onclick = () => { viewMode='list'; document.getElementById('btnList').classList.add('on'); document.getElementById('btnGrid').classList.remove('on'); renderUnits(); };
+document.getElementById('q').oninput = renderUnits;
+document.getElementById('btnAdd').onclick = () => document.getElementById('modal').classList.remove('hidden');
+document.getElementById('btnAddCancel').onclick = () => document.getElementById('modal').classList.add('hidden');
+document.getElementById('btnAddOk').onclick = addCat;
+document.getElementById('btnBrowseFolder').onclick = async () => {
+  const r = await api('/api/pick', {kind:'folder'});
+  if (r.ok && r.path) document.getElementById('newRoot').value = r.path;
+};
+document.getElementById('btnSavePaths').onclick = savePaths;
+document.getElementById('btnStore').onclick = loadStore;
+document.getElementById('sq').addEventListener('keydown', ev => { if (ev.key === 'Enter') loadStore(); });
+document.getElementById('btnCopyRoot').onclick = async () => {
+  try { await navigator.clipboard.writeText(state.root || ''); foot('copied'); }
+  catch { foot('copy fail'); }
+};
+document.getElementById('btnOpenRoot').onclick = async () => {
+  const r = await api('/api/open', {path: state.root});
+  foot(r.ok ? 'open root' : (r.error || 'open fail'));
+};
+document.getElementById('btnCatFolder').onclick = async () => {
+  const cat = catById(current);
+  if (!cat) return;
+  const r = await api('/api/open', {path: cat.path});
+  foot(r.ok ? 'open category' : (r.error || 'open fail'));
+};
+document.getElementById('btnAddFile').onclick = async () => {
+  const r = await api('/api/add-file', {category: current});
+  if (!r.ok) { foot(r.error || 'add file fail'); return; }
+  state.categories = r.categories;
+  renderAll();
+  foot('file added');
+};
+document.getElementById('btnPickRoot').onclick = async () => {
+  const r = await api('/api/pick', {kind:'folder'});
+  if (r.ok && r.path) document.getElementById('setRoot').value = r.path;
+};
+document.getElementById('btnSaveSet').onclick = async () => {
+  const r = await api('/api/settings', {
+    libraryRoot: document.getElementById('setRoot').value.trim(),
+    autostart: document.getElementById('setAuto').checked
+  });
+  if (!r.ok) { foot(r.error || 'settings fail'); return; }
+  state.config = r.config;
+  await loadState();
+  foot('settings saved');
+};
+document.getElementById('btnSaveProxy').onclick = async () => {
+  const r = await api('/api/settings', {
+    proxyEnabled: document.getElementById('setProxyOn').checked,
+    proxyHttp: document.getElementById('setProxy').value.trim(),
+    proxyHttps: document.getElementById('setProxy').value.trim()
+  });
+  foot(r.ok ? 'proxy saved' : (r.error || 'proxy fail'));
+  if (r.ok) state.config = r.config;
+};
+async function winPage(page){
+  const r = await api('/api/windows', {page});
+  foot(r.ok ? ('open ' + page) : (r.error || 'windows fail'));
+}
+document.getElementById('boxDef').onclick = () => winPage('defender');
+document.getElementById('boxAct').onclick = () => winPage('activation');
+document.getElementById('boxNet').onclick = () => winPage('network');
+document.getElementById('boxUp').onclick = () => winPage('update');
+document.getElementById('boxStart').onclick = () => winPage('startup');
+document.getElementById('boxGhost').onclick = () => foot('Ghost Mode slot empty — plug modules later');
+loadState();
+</script>
+</body>
+</html>

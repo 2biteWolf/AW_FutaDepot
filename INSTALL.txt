@@ -1,0 +1,50 @@
+AW_FutaDepot 0.1.45 — install
+=============================
+
+What it is
+----------
+Portable Windows library launcher (Tk). One folder. No browser.
+Drop packs into _FutaMass (one file or folder = one tile).
+
+Quick install (PowerShell)
+--------------------------
+Expand-Archive -Path .\AW_FutaDepot_0.1.45.zip -DestinationPath .\AW_FutaDepot -Force
+cd .\AW_FutaDepot
+.\START.bat
+
+# Or run Python UI directly (Python 3 + Tk required):
+py -3 ui.py
+
+# Optional: install Python if missing
+winget install Python.Python.3.12
+
+Quick install (cmd)
+-------------------
+mkdir AW_FutaDepot
+tar -xf AW_FutaDepot_0.1.45.zip -C AW_FutaDepot
+cd AW_FutaDepot
+START.bat
+
+Where to put files
+------------------
+AW_FutaDepot/
+  START.bat / AW_FutaDepot.exe   — launch
+  ui.py, app.py, ...             — program files (keep together)
+  _FutaMass/                     — YOUR library root (create packs here)
+  icons-custom/                  — optional pasted icons (created by app)
+  config.json                    — created on first run (do not ship your personal one)
+  channel/version.json           — auto-update pointer
+
+Rules
+-----
+- Keep program files next to START.bat.
+- Do not overwrite an existing config.json / _FutaMass when updating — copy the new program files over, keep your library.
+- Updates: SETTINGS → UPDATE, or pull channel/version.json from GitHub.
+
+Update channel
+--------------
+https://raw.githubusercontent.com/2biteWolf/AW_FutaDepot/main/channel/version.json
+
+Repo
+----
+https://github.com/2biteWolf/AW_FutaDepot

@@ -1,33 +1,26 @@
-# AW_FutaDepot
+﻿# AW_FutaDepot
 
-Windows library launcher for installer packs. Tk window. No browser UI.
+Portable Windows library for installers, games, tools, archives and scripts. One folder. Tk window. No browser.
 
-**Current: 0.1.19**
+**Current version: 0.1.45**
 
-Public source and releases live here. Project notes, Drive packs and the working zip for the owner live on Notion — that page is private.
+RU: Ð›Ð°ÑƒÐ½Ñ‡ÐµÑ€-Ð¿Ñ€Ð¾Ð²Ð¾Ð´Ð½Ð¸Ðº. ÐšÐ¸Ð´Ð°ÐµÑˆÑŒ Ð¿Ð°Ð¿ÐºÐ¸ Ð¸ exe Ð² `_FutaMass`, SCAN, Ð¿Ð»Ð¸Ñ‚ÐºÐ¸ Ð¿Ð¾ Ñ‚Ð¸Ð¿Ñƒ, Ð¸Ð½ÑÐ¿ÐµÐºÑ‚Ð¾Ñ€ ÑÐ¿Ñ€Ð°Ð²Ð°, RUN / SILENT / OPEN FOLDER.
 
-- GitHub: https://github.com/2biteWolf/AW_FutaDepot
-- Latest zip (after Actions): https://github.com/2biteWolf/AW_FutaDepot/releases/latest
-- Update channel: [`channel/version.json`](https://raw.githubusercontent.com/2biteWolf/AW_FutaDepot/main/channel/version.json)
-- Notion (owner): [AW_FutaDepot.app](https://app.notion.com/p/3dd34221c11781d59278c0e9bfed0216)
-- Hub: [Grok Project Space](https://app.notion.com/p/3cc34221c11780bbb0bad73405a44f1d)
-- Drive sync folder (owner): [AW_FutaDepot_sync](https://drive.google.com/drive/folders/1Lqwt0iIrV3oDsrXR66lvNWqRJtAneoy_)
+## Links
 
-EN: Local folder library for games, apps, tools and drivers. Scan installers (Inno / NSIS / MSI / portable), run as-is or silent when the engine is known, pull winget packages, dump the catalog to JSON for a chat enricher, import metadata back.
-
-RU: Локальная библиотека установщиков. Скан движка, запуск как есть или тихо, Net Install через winget, REPORT/IMPORT дампа, автообновление с GitHub Releases.
+| | |
+| --- | --- |
+| Repo | https://github.com/2biteWolf/AW_FutaDepot |
+| Releases | https://github.com/2biteWolf/AW_FutaDepot/releases |
+| Update channel | https://raw.githubusercontent.com/2biteWolf/AW_FutaDepot/main/channel/version.json |
 
 ## Download
 
-1. Open [Releases](https://github.com/2biteWolf/AW_FutaDepot/releases/latest).
-2. Take `AW_FutaDepot_0.1.19.zip` (version matches `VERSION` in `app.py`).
-3. Unpack the folder. Keep the folder together — config, library and icons travel with it.
+1. Latest zip from [Releases](https://github.com/2biteWolf/AW_FutaDepot/releases).
+2. Unpack. Keep `ui.py`, `app.py`, `START.bat`, `catalog.json`, `icon.ico` together.
+3. `_FutaMass` stays next to the program. Do not merge old zip piles into a new one blindly â€” copy `_FutaMass` and `icons-custom` if you already have a library.
 
-Owner copy also sits on the Notion DOWNLOAD block. Do not treat old zip piles as current.
-
-## Run
-
-Need **Python 3 + Tcl/Tk**. Pillow is used for custom icons.
+Need **Python 3** with Tk. Pillow optional (custom tile icons).
 
 ```
 START.bat
@@ -39,103 +32,105 @@ or
 py -3 ui.py
 ```
 
-`AW_FutaDepot.exe` is a thin Go stub that finds Python and starts `ui.py`. It is not in git (see `.gitignore`). Build it on Windows from `win/main.go` if you want the stub.
-
-Language follows Windows. Toggle sits in the header.
+Language follows Windows locale (RU / EN).
 
 ## Layout
 
 ```
 AW_FutaDepot/
-  ui.py              window
-  app.py             scan, install, dump, update, winget
-  aw_update.py       channel check + zip apply
-  catalog.json       winget Net Install list
+  ui.py                 window
+  app.py                scan / run / dump / update / winget
+  catalog.json          NET INSTALL list
   START.bat
-  channel/version.json
-  library/           optional extra roots (Games, Apps, Tools, Drivers)
-  _FutaMass/         default library root (inbox + packs)
-  inbox/             drop folder (also scanned)
-  icons-custom/      pasted tile icons, survives scan
-  reports/           depot-dump-*.json + .md
+  CHAT_DUMP_PROMPT.md   prompt for the dump chat
+  channel/version.json  auto-update pointer
+  _FutaMass/            drop root â€” one file or folder = one tile
+  icons-custom/         pasted icons
+  reports/              depot-dump-*.json
 ```
 
-Categories = folders at the library root + ADD FOLDER. No shared dump pile. Each category has its own install destination. Silent stays locked until that path is set. Paths must not use junk characters; do not put spaces in the target.
+One default root: `_FutaMass`. Plus on the left adds extra group folders. No empty default Games/Apps/Tools.
 
 ## How it works
 
-| Action | What happens |
+| Action | What |
 | --- | --- |
-| SCAN | Walks `_FutaMass`. Detects installer / portable / game / save / script / archive. Marks `hasSaves`. |
-| RUN | Always launches the file as it lies. Game launchers are not rewritten. |
-| SILENT | On only when the scan knows the engine (Inno `/VERYSILENT /NORESTART /DIR=`, NSIS `/S /D=`, MSI `msiexec /qn`). Else the button stays off. |
-| NET INSTALL | winget catalog from `catalog.json`. Click = install command. Queue error = skip, continue. |
-| PATHS | One destination per category. |
-| REPORT | Writes `reports/depot-dump-*.json` + markdown + latest copies. |
-| IMPORT | Merges chat JSON into `depot-meta.json`. Schema in `CHAT_DUMP_PROMPT.md`. |
-| SYNC | Pulls `depot-meta.json` from the configured Drive URL. |
-| UPDATE | Reads `versionUrl` (`channel/version.json` on this repo). Downloads the release zip. Keeps `library`, `inbox`, `icons-custom`, `reports`, `config.json`, `depot-meta.json`, `search-history.json`. Quiet checkbox default ON. |
-| TOOLBOX | Proxy for net install, shortcuts to Defender / Network / Update / Startup. |
-| ICONS | Select tile, Ctrl+V, 1:1 crop. Saved under `icons-custom/`. |
-
-Optional `depot.json` next to a payload:
-
-```json
-{
-  "name": "7-Zip",
-  "kind": "installer",
-  "file": "7z2408-x64.exe",
-  "engine": "innosetup",
-  "silentFlags": ["/VERYSILENT", "/NORESTART", "/DIR={target}"]
-}
-```
+| HOME | All units from `_FutaMass`. Click a tile â†’ inspector. |
+| FILTER (left colors) | Games / Saves / Scripts / Installers / Portable / Archives / Docs. Filters the list. Does not move files. |
+| AUTOSORT tab | Same units grouped by color. Disk is unchanged unless you confirm move. |
+| SCAN | Depth 1. Each child of `_FutaMass` is one unit. Zip: peek namelist; one inner exe = portable, setup.exe = installer. |
+| RUN AS-IS | Launch the file. Zip with inner exe â†’ unpack then run. |
+| SILENT | On only after Inno / NSIS / MSI sniff. |
+| OPEN FOLDER | Explorer on that path. |
+| NET INSTALL | winget from `catalog.json`. |
+| REPORT | `reports/depot-dump-latest.json` â†’ send to dump chat. |
+| IMPORT / SYNC | Merge metadata (`sourceUrl`, `wingetId`, `updateUrl`). |
+| UPDATE | SETTINGS button. Reads `versionUrl`. Does not freeze the window. Quiet auto-check is off by default. |
+| ICONS | Ctrl+click icon then Ctrl+V, 1:1 crop. |
+| ? | Help + COPY PROMPT. |
 
 ## Kinds
 
-| kind | color | what |
+| kind | color | |
 | --- | --- | --- |
-| installer | lime | Inno/NSIS/MSI |
-| portable | olive | lone exe |
-| game | blue | Unity/GM/Steam API/game.exe |
-| save | orange | save/userdata + .sav .sl2 |
-| script | purple | bat/cmd |
-| archive | brown | zip/7z/rar/iso |
-| empty/unknown | black | scan or REPORT |
+| game | blue `#3b82f6` | Unity / GM / steam_api / game.exe |
+| save | orange `#f97316` | save folders, `.sav` `.sl2` |
+| script | purple `#a855f7` | `.bat` `.cmd` `.ps1` |
+| installer | lime `#99e550` | Inno / NSIS / MSI / setup.exe |
+| portable | cyan `#22d3ee` | lone exe or zip with one exe |
+| archive | yellow `#eab308` | zip / 7z / rar / iso |
+| doc | gray `#94a3b8` | root `.txt` `.md` |
+| unknown | black | needs REPORT |
 
 ## Dump chat
 
-Copy `CHAT_DUMP_PROMPT.md` into a new chat. First reply must be `принято, жду данные`. Drop `depot-dump-*.json`. Chat returns import JSON only — metadata, no library rewrite.
+1. COPY PROMPT from Help.
+2. New chat first line: `Ð¿Ñ€Ð¸Ð½ÑÑ‚Ð¾, Ð¶Ð´Ñƒ Ð´Ð°Ð½Ð½Ñ‹Ðµ`
+3. Send `depot-dump-latest.json` only.
+4. Chat returns import JSON. Then IMPORT.
+
+Prompt file: [`CHAT_DUMP_PROMPT.md`](CHAT_DUMP_PROMPT.md) (updated 0.1.26+).
 
 ## Update channel
 
-`config.json` key `versionUrl` defaults to:
+`config.json` â†’ `versionUrl`:
 
 `https://raw.githubusercontent.com/2biteWolf/AW_FutaDepot/main/channel/version.json`
 
 ```json
 {
-  "version": "0.1.18",
-  "zip": "https://github.com/2biteWolf/AW_FutaDepot/releases/download/v0.1.18/AW_FutaDepot_0.1.19.zip",
-  "notes": "github actions"
+  "version": "0.1.28",
+  "zip": "https://github.com/2biteWolf/AW_FutaDepot/releases/download/v0.1.28/AW_FutaDepot_0.1.28.zip",
+  "notes": "fast explorer, no browser server"
 }
 ```
 
-Push to `main` or tag `v*` runs `.github/workflows/deploy.yml`: packs the tree, publishes the GitHub Release, writes `channel/version.json`.
+Until that file and the Release zip exist on this repo, UPDATE cannot pull. Use the zip from Releases or the public Drive folder.
 
 ## Versions
 
-See [CHANGELOG.md](CHANGELOG.md). Patch `+0.0.1` on every change. Latest source version is **0.1.19**.
+| ver | |
+| --- | --- |
+| 0.1.30 | SORT moves the folder unit, not the inner setup. |
+| 0.1.30 | COPY ALL copies program + full `_FutaMass` (GB size), not just the launcher. |
+| 0.1.29 | SCAN inside x86/x64/bin. Nested extras stay in the pack. |
+| 0.1.28 | Drop HTTP server. No PowerShell on paint. No resize rebuild. SCAN = disk only. |
+| 0.1.27 | Update check off UI thread. 8s timeout. Quiet 404. |
+| 0.1.26 | Click from HOME opens inspector. Split panes. Zip peek. |
+| 0.1.25 | Depth-1 units, restore buckets, hidden PowerShell. |
+| 0.1.19â€“0.1.24 | Icons, report dump, INSTALLED, PACK zip, `_FutaMass`. |
 
-Working public artifacts are the GitHub Release zips produced by Actions. Historical local zips in the project folder are not the channel.
+See [CHANGELOG.md](CHANGELOG.md).
 
 ## Rules
 
 - Do not change working logic without an explicit order.
 - No stub implementations.
 - Silent only after a real engine sniff.
-- No crack / activation / disable-defender how-tos in dumps or docs.
-- Code and comments: English. Product talk: Russian.
+- No crack / activation / disable-defender how-tos.
+- Code: English. Product talk: Russian.
 
 ## License
 
-Private use for the AW workspace. Not a store listing.
+Private AW workspace. Not a store listing.
+
