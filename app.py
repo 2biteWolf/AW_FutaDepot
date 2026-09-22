@@ -26,7 +26,7 @@ if _LIB.is_dir() and str(_LIB) not in sys.path:
 
 import futa_db
 
-VERSION = "0.1.46"
+VERSION = "0.1.47"
 PORT = 17331
 APP_DIR = Path(__file__).resolve().parent
 CONFIG_PATH = APP_DIR / "config.json"
@@ -1823,11 +1823,23 @@ GH_SYNC_REPO = "2biteWolf/AW_FutaDepot"
 GH_SYNC_BRANCH = "main"
 GH_META_PATH = "channel/depot-meta.json"
 GH_DUMP_PATH = "channel/depot-dump-latest.json"
-DUMP_PUSH_MAX = 8 * 1024 * 1024
+DUMP_PUSH_MAX = 16 * 1024 * 1024
 
 
 def _which(cmd: str) -> str | None:
-    return shutil.which(cmd)
+    found = shutil.which(cmd)
+    if found:
+        return found
+    if os.name == "nt" and cmd.lower() in {"gh", "gh.exe"}:
+        candidates = [
+            Path(os.environ.get("ProgramFiles", r"C:\Program Files")) / "GitHub CLI" / "gh.exe",
+            Path(os.environ.get("LocalAppData", "")) / "Programs" / "GitHub CLI" / "gh.exe",
+            Path(os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")) / "GitHub CLI" / "gh.exe",
+        ]
+        for cand in candidates:
+            if cand.is_file():
+                return str(cand)
+    return None
 
 
 def ensure_local_meta() -> Path:

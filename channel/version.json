@@ -1,5 +1,5 @@
 {
-  "version": "0.1.46",
-  "zip": "https://github.com/2biteWolf/AW_FutaDepot/releases/download/v0.1.46/AW_FutaDepot_0.1.46.zip",
-  "notes": "SYNC pushes meta/dump to GitHub channel/; repo layout lib/docs/web"
+  "version": "0.1.47",
+  "zip": "https://github.com/2biteWolf/AW_FutaDepot/releases/download/v0.1.47/AW_FutaDepot_0.1.47.zip",
+  "notes": "SYNC finds gh outside PATH; dump push up to 16MB"
 }

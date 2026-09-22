@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.47 — 2026-09-22
+
+- SYNC finds `gh` under Program Files when not on PATH.
+- Dump push limit raised to 16 MB.
+- Config defaults / migration toward GitHub raw `channel/depot-meta.json`.
+
 ## 0.1.46 — 2026-09-22
 
 - Repo layout: root keeps entry points; helpers in `lib/`, docs in `docs/`, `web/index.html`.
