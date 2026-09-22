@@ -310,13 +310,15 @@
       "updateUrl": "",
       "wingetId": "",
       "updateHint": "",
-      "notes": "local: game/Games \u2192 actually: game/Games \u043f\u043e\u0442\u043e\u043c\u0443 \u0447\u0442\u043e engine layout (unity)"
+      "notes": "local: game/Games \u2192 actually: game/Games \u043f\u043e\u0442\u043e\u043c\u0443 \u0447\u0442\u043e engine layout (unity)",
+      "kindManual": true,
+      "file": "9Kings.exe"
     },
     "9kings.exe": {
       "name": "9 Kings",
       "id": "9 Kings",
-      "filePath": "C:/Users/AW_main/Desktop/AW_FutaDepot/_FutaMass/9 Kings/9Kings.exe",
-      "folder": "C:/Users/AW_main/Desktop/AW_FutaDepot/_FutaMass/9 Kings",
+      "filePath": "C:\\Users\\AW_main\\Desktop\\AW_FutaDepot\\_FutaMass\\Games\\9Kings.exe",
+      "folder": "C:\\Users\\AW_main\\Desktop\\AW_FutaDepot\\_FutaMass\\Games",
       "localKind": "game",
       "kind": "game",
       "localGroup": "Games",
@@ -336,13 +338,15 @@
       "updateUrl": "",
       "wingetId": "",
       "updateHint": "",
-      "notes": "local: game/Games \u2192 actually: game/Games \u043f\u043e\u0442\u043e\u043c\u0443 \u0447\u0442\u043e engine layout (unity)"
+      "notes": "local: game/Games \u2192 actually: game/Games \u043f\u043e\u0442\u043e\u043c\u0443 \u0447\u0442\u043e engine layout (unity)",
+      "kindManual": true,
+      "file": "9Kings.exe"
     },
     "9kings": {
       "name": "9 Kings",
       "id": "9 Kings",
-      "filePath": "C:/Users/AW_main/Desktop/AW_FutaDepot/_FutaMass/9 Kings/9Kings.exe",
-      "folder": "C:/Users/AW_main/Desktop/AW_FutaDepot/_FutaMass/9 Kings",
+      "filePath": "C:\\Users\\AW_main\\Desktop\\AW_FutaDepot\\_FutaMass\\Games\\9Kings.exe",
+      "folder": "C:\\Users\\AW_main\\Desktop\\AW_FutaDepot\\_FutaMass\\Games",
       "localKind": "game",
       "kind": "game",
       "localGroup": "Games",
@@ -362,7 +366,9 @@
       "updateUrl": "",
       "wingetId": "",
       "updateHint": "",
-      "notes": "local: game/Games \u2192 actually: game/Games \u043f\u043e\u0442\u043e\u043c\u0443 \u0447\u0442\u043e engine layout (unity)"
+      "notes": "local: game/Games \u2192 actually: game/Games \u043f\u043e\u0442\u043e\u043c\u0443 \u0447\u0442\u043e engine layout (unity)",
+      "kindManual": true,
+      "file": "9Kings.exe"
     },
     "c:/users/aw_main/desktop/aw_futadepot/_futamass/9 kings": {
       "name": "9 Kings",
@@ -388,13 +394,15 @@
       "updateUrl": "",
       "wingetId": "",
       "updateHint": "",
-      "notes": "local: game/Games \u2192 actually: game/Games \u043f\u043e\u0442\u043e\u043c\u0443 \u0447\u0442\u043e engine layout (unity)"
+      "notes": "local: game/Games \u2192 actually: game/Games \u043f\u043e\u0442\u043e\u043c\u0443 \u0447\u0442\u043e engine layout (unity)",
+      "kindManual": true,
+      "file": "UnityCrashHandler32.exe"
     },
     "9 kings": {
       "name": "9 Kings",
       "id": "9 Kings",
-      "filePath": "C:/Users/AW_main/Desktop/AW_FutaDepot/_FutaMass/9 Kings/9Kings.exe",
-      "folder": "C:/Users/AW_main/Desktop/AW_FutaDepot/_FutaMass/9 Kings",
+      "filePath": "C:\\Users\\AW_main\\Desktop\\AW_FutaDepot\\_FutaMass\\Scripts\\UnityCrashHandler32.exe",
+      "folder": "C:\\Users\\AW_main\\Desktop\\AW_FutaDepot\\_FutaMass\\Scripts",
       "localKind": "game",
       "kind": "game",
       "localGroup": "Games",
@@ -414,7 +422,9 @@
       "updateUrl": "",
       "wingetId": "",
       "updateHint": "",
-      "notes": "local: game/Games \u2192 actually: game/Games \u043f\u043e\u0442\u043e\u043c\u0443 \u0447\u0442\u043e engine layout (unity)"
+      "notes": "local: game/Games \u2192 actually: game/Games \u043f\u043e\u0442\u043e\u043c\u0443 \u0447\u0442\u043e engine layout (unity)",
+      "kindManual": true,
+      "file": "UnityCrashHandler32.exe"
     },
     "c:/users/aw_main/desktop/aw_futadepot/_futamass/_minidisplaysoft/usbmonitor.exe": {
       "name": "_miniDisplaySoft",
@@ -20617,7 +20627,139 @@
       "wingetId": "",
       "updateHint": "",
       "notes": "local: installer/Installers \u2192 actually: installer/Apps \u043f\u043e\u0442\u043e\u043c\u0443 \u0447\u0442\u043e tree polluted inbox listing, judged by filename/product"
+    },
+    "c:/users/aw_main/desktop/aw_futadepot/_futamass/games/9kings.exe": {
+      "kind": "game",
+      "kindManual": true,
+      "name": "9 Kings",
+      "filePath": "C:\\Users\\AW_main\\Desktop\\AW_FutaDepot\\_FutaMass\\Games\\9Kings.exe",
+      "folder": "C:\\Users\\AW_main\\Desktop\\AW_FutaDepot\\_FutaMass\\Games",
+      "file": "9Kings.exe"
+    },
+    "c:/users/aw_main/desktop/aw_futadepot/_futamass/games": {
+      "kind": "game",
+      "kindManual": true,
+      "name": "9 Kings",
+      "filePath": "C:\\Users\\AW_main\\Desktop\\AW_FutaDepot\\_FutaMass\\Games\\9Kings.exe",
+      "folder": "C:\\Users\\AW_main\\Desktop\\AW_FutaDepot\\_FutaMass\\Games",
+      "file": "9Kings.exe"
+    },
+    "games": {
+      "kind": "game",
+      "kindManual": true,
+      "name": "9 Kings",
+      "filePath": "C:\\Users\\AW_main\\Desktop\\AW_FutaDepot\\_FutaMass\\Games\\9Kings.exe",
+      "folder": "C:\\Users\\AW_main\\Desktop\\AW_FutaDepot\\_FutaMass\\Games",
+      "file": "9Kings.exe"
+    },
+    "c:/users/aw_main/desktop/aw_futadepot/_futamass/9 kings/unitycrashhandler32.exe": {
+      "name": "9 Kings",
+      "id": "9 Kings",
+      "filePath": "C:/Users/AW_main/Desktop/AW_FutaDepot/_FutaMass/9 Kings/9Kings.exe",
+      "folder": "C:/Users/AW_main/Desktop/AW_FutaDepot/_FutaMass/9 Kings",
+      "localKind": "game",
+      "kind": "script",
+      "localGroup": "Games",
+      "group": "Games",
+      "agreeWithLocal": true,
+      "verified": "yes",
+      "silentHint": "run-only",
+      "engine": "unity",
+      "hasSaves": false,
+      "hasCrackLike": false,
+      "payloadRel": "9Kings.exe",
+      "publisher": "Sad Socket",
+      "versionKnown": "",
+      "sourceUrl": "https://store.steampowered.com/app/2786700/9_Kings/",
+      "homepage": "https://store.steampowered.com/app/2786700/9_Kings/",
+      "downloadUrl": "",
+      "updateUrl": "",
+      "wingetId": "",
+      "updateHint": "",
+      "notes": "local: game/Games \u2192 actually: game/Games \u043f\u043e\u0442\u043e\u043c\u0443 \u0447\u0442\u043e engine layout (unity)",
+      "kindManual": true,
+      "file": "UnityCrashHandler32.exe"
+    },
+    "unitycrashhandler32.exe": {
+      "name": "9 Kings",
+      "id": "9 Kings",
+      "filePath": "C:\\Users\\AW_main\\Desktop\\AW_FutaDepot\\_FutaMass\\Scripts\\UnityCrashHandler32.exe",
+      "folder": "C:\\Users\\AW_main\\Desktop\\AW_FutaDepot\\_FutaMass\\Scripts",
+      "localKind": "game",
+      "kind": "script",
+      "localGroup": "Games",
+      "group": "Games",
+      "agreeWithLocal": true,
+      "verified": "yes",
+      "silentHint": "run-only",
+      "engine": "unity",
+      "hasSaves": false,
+      "hasCrackLike": false,
+      "payloadRel": "9Kings.exe",
+      "publisher": "Sad Socket",
+      "versionKnown": "",
+      "sourceUrl": "https://store.steampowered.com/app/2786700/9_Kings/",
+      "homepage": "https://store.steampowered.com/app/2786700/9_Kings/",
+      "downloadUrl": "",
+      "updateUrl": "",
+      "wingetId": "",
+      "updateHint": "",
+      "notes": "local: game/Games \u2192 actually: game/Games \u043f\u043e\u0442\u043e\u043c\u0443 \u0447\u0442\u043e engine layout (unity)",
+      "kindManual": true,
+      "file": "UnityCrashHandler32.exe"
+    },
+    "unitycrashhandler32": {
+      "name": "9 Kings",
+      "id": "9 Kings",
+      "filePath": "C:\\Users\\AW_main\\Desktop\\AW_FutaDepot\\_FutaMass\\Scripts\\UnityCrashHandler32.exe",
+      "folder": "C:\\Users\\AW_main\\Desktop\\AW_FutaDepot\\_FutaMass\\Scripts",
+      "localKind": "game",
+      "kind": "script",
+      "localGroup": "Games",
+      "group": "Games",
+      "agreeWithLocal": true,
+      "verified": "yes",
+      "silentHint": "run-only",
+      "engine": "unity",
+      "hasSaves": false,
+      "hasCrackLike": false,
+      "payloadRel": "9Kings.exe",
+      "publisher": "Sad Socket",
+      "versionKnown": "",
+      "sourceUrl": "https://store.steampowered.com/app/2786700/9_Kings/",
+      "homepage": "https://store.steampowered.com/app/2786700/9_Kings/",
+      "downloadUrl": "",
+      "updateUrl": "",
+      "wingetId": "",
+      "updateHint": "",
+      "notes": "local: game/Games \u2192 actually: game/Games \u043f\u043e\u0442\u043e\u043c\u0443 \u0447\u0442\u043e engine layout (unity)",
+      "kindManual": true,
+      "file": "UnityCrashHandler32.exe"
+    },
+    "c:/users/aw_main/desktop/aw_futadepot/_futamass/scripts/unitycrashhandler32.exe": {
+      "kind": "script",
+      "kindManual": true,
+      "name": "9 Kings",
+      "filePath": "C:\\Users\\AW_main\\Desktop\\AW_FutaDepot\\_FutaMass\\Scripts\\UnityCrashHandler32.exe",
+      "folder": "C:\\Users\\AW_main\\Desktop\\AW_FutaDepot\\_FutaMass\\Scripts",
+      "file": "UnityCrashHandler32.exe"
+    },
+    "c:/users/aw_main/desktop/aw_futadepot/_futamass/scripts": {
+      "kind": "script",
+      "kindManual": true,
+      "name": "9 Kings",
+      "filePath": "C:\\Users\\AW_main\\Desktop\\AW_FutaDepot\\_FutaMass\\Scripts\\UnityCrashHandler32.exe",
+      "folder": "C:\\Users\\AW_main\\Desktop\\AW_FutaDepot\\_FutaMass\\Scripts",
+      "file": "UnityCrashHandler32.exe"
+    },
+    "scripts": {
+      "kind": "script",
+      "kindManual": true,
+      "name": "9 Kings",
+      "filePath": "C:\\Users\\AW_main\\Desktop\\AW_FutaDepot\\_FutaMass\\Scripts\\UnityCrashHandler32.exe",
+      "folder": "C:\\Users\\AW_main\\Desktop\\AW_FutaDepot\\_FutaMass\\Scripts",
+      "file": "UnityCrashHandler32.exe"
     }
   },
-  "updated": "2026-09-22T18:24:36"
+  "updated": "2026-09-23T01:30:09"
 }
