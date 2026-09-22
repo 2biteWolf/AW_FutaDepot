@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.46 — 2026-09-22
+
+- Repo layout: root keeps entry points; helpers in `lib/`, docs in `docs/`, `web/index.html`.
+- SYNC pushes local `depot-meta.json` (+ dump ≤8MB) to GitHub `channel/` via `gh api`, then pulls `metaUrl`.
+- Default meta/dump URLs point at raw GitHub channel files. Missing `gh` → UI askyesno winget install.
+- Optional Drive push when `syncTarget` includes drive and `rclone` exists.
+
+
 ## 0.1.45 — 2026-09-22
 
 - Apply icons from `_FutaMass/.futa-db` on REFRESH and on launch. Scan pipeline unchanged.

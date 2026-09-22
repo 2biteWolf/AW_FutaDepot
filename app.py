@@ -15,15 +15,23 @@ import threading
 import urllib.error
 import urllib.request
 import zipfile
+import base64
 from pathlib import Path
+
+# lib/ on sys.path before local imports
+_APP_DIR_BOOT = Path(__file__).resolve().parent
+_LIB = _APP_DIR_BOOT / "lib"
+if _LIB.is_dir() and str(_LIB) not in sys.path:
+    sys.path.insert(0, str(_LIB))
 
 import futa_db
 
-VERSION = "0.1.45"
+VERSION = "0.1.46"
 PORT = 17331
 APP_DIR = Path(__file__).resolve().parent
 CONFIG_PATH = APP_DIR / "config.json"
-CATALOG_PATH = APP_DIR / "catalog.json"
+_CATALOG_CANDIDATES = [APP_DIR / "lib" / "catalog.json", APP_DIR / "catalog.json"]
+CATALOG_PATH = next((c for c in _CATALOG_CANDIDATES if c.is_file()), _CATALOG_CANDIDATES[0])
 META_PATH = APP_DIR / "depot-meta.json"
 INSTALLED_PATH = APP_DIR / "installed.json"
 HISTORY_PATH = APP_DIR / "search-history.json"
@@ -149,9 +157,16 @@ def load_config() -> dict:
     data.setdefault("proxyHttps", "")
     data.setdefault("toolboxModules", [])
     data.setdefault("channelId", "AW_FutaDepot_sync")
+    data.setdefault("syncTarget", "github")
     data.setdefault("driveFolder", "https://drive.google.com/drive/folders/1Lqwt0iIrV3oDsrXR66lvNWqRJtAneoy_")
-    data.setdefault("dumpUrl", "https://drive.google.com/uc?export=download&id=1DPHF7ftNKdM8ZWPqmAIbiB4dTlvbZGP1")
-    data.setdefault("metaUrl", "https://drive.google.com/uc?export=download&id=1yk1RCa__3aq7niMY-lLQHUdasg19jc2e")
+    data.setdefault(
+        "dumpUrl",
+        "https://raw.githubusercontent.com/2biteWolf/AW_FutaDepot/main/channel/depot-dump-latest.json",
+    )
+    data.setdefault(
+        "metaUrl",
+        "https://raw.githubusercontent.com/2biteWolf/AW_FutaDepot/main/channel/depot-meta.json",
+    )
     data.setdefault("versionUrl", "https://raw.githubusercontent.com/2biteWolf/AW_FutaDepot/main/channel/version.json")
     data.setdefault("autoUpdate", False)
     return data
@@ -1804,28 +1819,325 @@ def apply_update(zip_url: str, progress=None) -> dict:
     return {"ok": True, "restart": False}
 
 
+GH_SYNC_REPO = "2biteWolf/AW_FutaDepot"
+GH_SYNC_BRANCH = "main"
+GH_META_PATH = "channel/depot-meta.json"
+GH_DUMP_PATH = "channel/depot-dump-latest.json"
+DUMP_PUSH_MAX = 8 * 1024 * 1024
+
+
+def _which(cmd: str) -> str | None:
+    return shutil.which(cmd)
+
+
+def ensure_local_meta() -> Path:
+    """Ensure local depot-meta.json exists (empty units if missing)."""
+    if not META_PATH.is_file():
+        META_PATH.write_text(
+            json.dumps({"updated": "", "units": {}}, indent=2),
+            encoding="utf-8",
+        )
+    return META_PATH
+
+
+def gh_auth_status() -> dict:
+    gh = _which("gh")
+    if not gh:
+        return {"ok": False, "missing": True, "error": "gh not on PATH"}
+    try:
+        proc = subprocess.run(
+            [gh, "auth", "status"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return {"ok": False, "missing": False, "error": str(exc)}
+    out = (proc.stdout or "") + (proc.stderr or "")
+    logged = proc.returncode == 0 and "Logged in" in out
+    return {
+        "ok": logged,
+        "missing": False,
+        "logged_in": logged,
+        "code": proc.returncode,
+        "text": out.strip(),
+        "error": None if logged else "gh not logged in — run: gh auth login",
+    }
+
+
+def gh_install_hint() -> dict:
+    """Structured result so UI can confirm installing GitHub CLI."""
+    if os.name == "nt":
+        if _which("winget"):
+            return {
+                "ok": False,
+                "need_install": True,
+                "tool": "gh",
+                "installer": "winget",
+                "command": "winget install GitHub.cli",
+                "error": "GitHub CLI (gh) not found. Install with winget?",
+            }
+        if _which("scoop"):
+            return {
+                "ok": False,
+                "need_install": True,
+                "tool": "gh",
+                "installer": "scoop",
+                "command": "scoop install gh",
+                "error": "GitHub CLI (gh) not found. Install with scoop?",
+            }
+        if _which("choco"):
+            return {
+                "ok": False,
+                "need_install": True,
+                "tool": "gh",
+                "installer": "choco",
+                "command": "choco install gh -y",
+                "error": "GitHub CLI (gh) not found. Install with chocolatey?",
+            }
+        return {
+            "ok": False,
+            "need_install": True,
+            "tool": "gh",
+            "installer": "manual",
+            "command": "winget install GitHub.cli",
+            "url": "https://cli.github.com/",
+            "error": "GitHub CLI (gh) not found. Install from https://cli.github.com/ then retry SYNC.",
+        }
+    return {
+        "ok": False,
+        "need_install": True,
+        "tool": "gh",
+        "installer": "manual",
+        "command": "",
+        "url": "https://cli.github.com/",
+        "error": "GitHub CLI (gh) not found. Install from https://cli.github.com/",
+    }
+
+
+def run_install_command(command: str) -> dict:
+    """Run a user-confirmed install command (winget/scoop/choco)."""
+    command = (command or "").strip()
+    if not command:
+        return {"ok": False, "error": "empty install command"}
+    try:
+        proc = subprocess.run(
+            command,
+            shell=True,
+            capture_output=True,
+            text=True,
+            timeout=1800,
+            env=proxy_env(load_config()),
+        )
+        ok = proc.returncode == 0
+        return {
+            "ok": ok,
+            "code": proc.returncode,
+            "out": (proc.stdout or "")[-2000:],
+            "err": (proc.stderr or "")[-2000:],
+            "error": None if ok else ((proc.stderr or proc.stdout or "install failed")[-400:]),
+        }
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return {"ok": False, "error": str(exc)}
+
+
+def _gh_api_json(method: str, path: str, body: dict | None = None) -> dict:
+    gh = _which("gh")
+    if not gh:
+        return {"ok": False, "error": "gh missing"}
+    cmd = [gh, "api", "-X", method, path]
+    if body is not None:
+        cmd += ["--input", "-"]
+    try:
+        proc = subprocess.run(
+            cmd,
+            input=json.dumps(body) if body is not None else None,
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return {"ok": False, "error": str(exc)}
+    raw = (proc.stdout or "").strip()
+    if proc.returncode != 0:
+        err = (proc.stderr or raw or "gh api failed")[-600:]
+        return {"ok": False, "error": err, "code": proc.returncode}
+    if not raw:
+        return {"ok": True, "data": {}}
+    try:
+        return {"ok": True, "data": json.loads(raw)}
+    except json.JSONDecodeError:
+        return {"ok": True, "data": {"raw": raw}}
+
+
+def gh_put_file(repo: str, path: str, content: bytes, message: str, branch: str = GH_SYNC_BRANCH) -> dict:
+    """Create or update a file on GitHub via gh api PUT contents (base64)."""
+    api = f"repos/{repo}/contents/{path}"
+    sha = None
+    got = _gh_api_json("GET", f"{api}?ref={branch}")
+    if got.get("ok") and isinstance(got.get("data"), dict):
+        sha = got["data"].get("sha")
+    body = {
+        "message": message,
+        "content": base64.b64encode(content).decode("ascii"),
+        "branch": branch,
+    }
+    if sha:
+        body["sha"] = sha
+    put = _gh_api_json("PUT", api, body)
+    if not put.get("ok"):
+        return {"ok": False, "error": put.get("error") or "put failed", "path": path}
+    return {"ok": True, "path": path, "sha": ((put.get("data") or {}).get("content") or {}).get("sha") or sha}
+
+
+def push_sync_github(cfg: dict) -> dict:
+    """Push local depot-meta.json and optionally dump to repo channel/."""
+    if not _which("gh"):
+        hint = gh_install_hint()
+        hint["pushed"] = False
+        return hint
+    auth = gh_auth_status()
+    if not auth.get("ok"):
+        return {
+            "ok": False,
+            "pushed": False,
+            "need_login": True,
+            "error": auth.get("error") or "gh not logged in",
+            "hint": "Run: gh auth login  (browser / device flow). Do not paste tokens into the app.",
+            "auth": auth,
+        }
+    meta_path = ensure_local_meta()
+    meta_bytes = meta_path.read_bytes()
+    msg = "sync: update depot meta/dump"
+    results = []
+    meta_r = gh_put_file(GH_SYNC_REPO, GH_META_PATH, meta_bytes, msg)
+    results.append(meta_r)
+    dump_r = {"ok": False, "skipped": True, "reason": "missing"}
+    dump_src = REPORTS_DIR / "depot-dump-latest.json"
+    if dump_src.is_file():
+        size = dump_src.stat().st_size
+        if size > DUMP_PUSH_MAX:
+            dump_r = {"ok": False, "skipped": True, "reason": f"dump too large ({size} > {DUMP_PUSH_MAX})"}
+        else:
+            dump_r = gh_put_file(GH_SYNC_REPO, GH_DUMP_PATH, dump_src.read_bytes(), msg)
+    results.append(dump_r)
+    ok = bool(meta_r.get("ok"))
+    return {
+        "ok": ok,
+        "pushed": ok,
+        "meta": meta_r,
+        "dump": dump_r,
+        "error": None if ok else (meta_r.get("error") or "meta push failed"),
+    }
+
+
+def push_sync_drive(cfg: dict) -> dict:
+    """Optional rclone copy of meta + dump into driveFolder remote path."""
+    target = (cfg.get("syncTarget") or "github").lower()
+    if "drive" not in target and target != "both":
+        return {"ok": True, "skipped": True, "reason": "syncTarget is not drive"}
+    folder = (cfg.get("driveFolder") or "").strip()
+    if not folder:
+        return {"ok": False, "error": "driveFolder empty"}
+    if not _which("rclone"):
+        return {
+            "ok": False,
+            "need_install": True,
+            "tool": "rclone",
+            "url": "https://rclone.org/install/",
+            "error": "rclone not found. Install from https://rclone.org/install/ or skip Drive push.",
+        }
+    ensure_local_meta()
+    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    files = [META_PATH]
+    dump = REPORTS_DIR / "depot-dump-latest.json"
+    if dump.is_file() and dump.stat().st_size <= DUMP_PUSH_MAX:
+        files.append(dump)
+    # driveFolder may be a share URL; rclone remote must be configured by user.
+    remote = folder
+    if remote.startswith("http"):
+        return {
+            "ok": False,
+            "error": "driveFolder is a URL. Set syncTarget drive remote like gdrive:AW_FutaDepot/channel",
+        }
+    try:
+        for f in files:
+            proc = subprocess.run(
+                ["rclone", "copy", str(f), remote, "--transfers", "1"],
+                capture_output=True,
+                text=True,
+                timeout=300,
+            )
+            if proc.returncode != 0:
+                return {"ok": False, "error": (proc.stderr or proc.stdout or "rclone fail")[-400:]}
+        return {"ok": True, "pushed": True, "files": [f.name for f in files], "remote": remote}
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return {"ok": False, "error": str(exc)}
+
+
+def pull_sync_meta(cfg: dict) -> dict:
+    url = (cfg.get("metaUrl") or "").strip()
+    if not url:
+        return {"ok": False, "error": "metaUrl empty"}
+    got = fetch_url(url)
+    if not got.get("ok"):
+        return got
+    tmp = REPORTS_DIR / "depot-meta-pulled.json"
+    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    tmp.write_text(got["text"], encoding="utf-8")
+    try:
+        json.loads(got["text"])
+    except json.JSONDecodeError:
+        return {"ok": False, "error": "pulled meta is not JSON"}
+    return import_meta_file(str(tmp))
+
+
 def sync_channel(cfg: dict | None = None) -> dict:
+    """Write report, push sync DB to GitHub channel/, then pull metaUrl."""
     cfg = cfg or load_config()
     report = write_report(cfg)
-    pulled = {"ok": False}
-    url = cfg.get("metaUrl") or ""
-    if url:
-        got = fetch_url(url)
-        if got.get("ok"):
-            tmp = REPORTS_DIR / "depot-meta-pulled.json"
-            tmp.write_text(got["text"], encoding="utf-8")
-            try:
-                json.loads(got["text"])
-                pulled = import_meta_file(str(tmp))
-            except json.JSONDecodeError:
-                pulled = {"ok": False, "error": "Drive file is not JSON yet"}
-        else:
-            pulled = got
+    target = (cfg.get("syncTarget") or "github").lower()
+    push = {"ok": True, "skipped": True}
+    drive = {"ok": True, "skipped": True}
+
+    if target in {"github", "both", ""}:
+        push = push_sync_github(cfg)
+        if push.get("need_install") or push.get("need_login"):
+            return {
+                "ok": False,
+                "report": report,
+                "push": push,
+                "pull": {"ok": False, "skipped": True},
+                "drive": drive,
+                "folder": cfg.get("driveFolder") or "",
+                "need_install": push.get("need_install"),
+                "need_login": push.get("need_login"),
+                "error": push.get("error"),
+                "command": push.get("command"),
+                "installer": push.get("installer"),
+                "hint": push.get("hint"),
+                "url": push.get("url"),
+                "tool": push.get("tool") or "gh",
+            }
+
+    if target in {"drive", "both"}:
+        drive = push_sync_drive(cfg)
+
+    pulled = pull_sync_meta(cfg)
+    ok = bool(push.get("ok") or push.get("skipped")) and bool(pulled.get("ok") or False)
+    # push failure is soft if meta still pushed? require meta push when github
+    if target in {"github", "both", ""} and not push.get("ok") and not push.get("skipped"):
+        ok = False
     return {
-        "ok": True,
+        "ok": ok or bool(pulled.get("ok")),
         "report": report,
+        "push": push,
         "pull": pulled,
+        "drive": drive,
         "folder": cfg.get("driveFolder") or "",
+        "error": None
+        if (ok or pulled.get("ok"))
+        else (push.get("error") or pulled.get("error") or drive.get("error")),
     }
 
 
@@ -1900,9 +2212,7 @@ def delete_unit(cat: dict, unit: dict) -> dict:
 PACK_FILES = [
     "app.py",
     "ui.py",
-    "aw_update.py",
-    "catalog.json",
-    "config.json",
+    "config.example.json",
     "icon.ico",
     "icon128.png",
     "AW_FutaDepot.exe",
@@ -1910,14 +2220,9 @@ PACK_FILES = [
     "COPY_TO.bat",
     "launcher.cs",
     "README.md",
+    "INSTALL.txt",
     "CHANGELOG.md",
-    "CHAT_DUMP_PROMPT.md",
-    "SPEC.md",
-    "win_cfg.py",
-    "lib_opt.py",
-    "bf_futa.py",
-    "BF_FUTA.md",
-    "futa_db.py",
+    "CHANGELOG.txt",
 ]
 SKIP_COPY_DIR = {"__pycache__", ".iconcache", ".git", "__macosx", "$recycle.bin"}
 
@@ -1986,6 +2291,9 @@ def copy_plan(cfg: dict) -> dict:
 
     for name in PACK_FILES:
         add(APP_DIR / name, name)
+    add(APP_DIR / "lib", "lib")
+    add(APP_DIR / "docs", "docs")
+    add(APP_DIR / "web", "web")
     add(APP_DIR / "channel", "channel")
     add(APP_DIR / "win", "win")
     lib = library_root(cfg)

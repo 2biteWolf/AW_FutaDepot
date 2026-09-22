@@ -12,6 +12,12 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog, ttk
 from pathlib import Path
 
+# lib/ on sys.path before local imports
+_ROOT = Path(__file__).resolve().parent
+_LIB = _ROOT / "lib"
+if _LIB.is_dir() and str(_LIB) not in sys.path:
+    sys.path.insert(0, str(_LIB))
+
 import app as core
 import win_cfg
 import lib_opt
@@ -546,19 +552,92 @@ class DepotUI:
             core.open_path(Path(dump))
 
     def sync_net(self) -> None:
-        r = core.sync_channel(self.cfg)
+        ru = self.lang() == "ru"
+        self.status("SYNC…")
+
+        def work() -> None:
+            r = core.sync_channel(self.cfg)
+            self.root.after(0, lambda: self._sync_done(r))
+
+        threading.Thread(target=work, daemon=True).start()
+
+    def _sync_done(self, r: dict) -> None:
+        ru = self.lang() == "ru"
+        if r.get("need_install") and (r.get("tool") or "gh") == "gh":
+            cmd = r.get("command") or "winget install GitHub.cli"
+            if ru:
+                msg = "Нет GitHub CLI (gh).\n\nУстановить?\n\n" + cmd
+            else:
+                msg = "GitHub CLI (gh) is missing.\n\nInstall now?\n\n" + cmd
+            if messagebox.askyesno("SYNC / gh", msg):
+                self.status("ставим gh…" if ru else "installing gh…")
+                inst = core.run_install_command(cmd)
+                if not inst.get("ok"):
+                    self.status(inst.get("error") or "gh install fail")
+                    messagebox.showerror("SYNC / gh", inst.get("error") or "install failed")
+                    return
+                auth = core.gh_auth_status()
+                if auth.get("missing"):
+                    self.status("gh still missing after install")
+                    return
+                if not auth.get("ok"):
+                    if ru:
+                        hint = (
+                            "gh установлен. Войди: gh auth login\n"
+                            "(браузер / device flow). Токены в приложение не вставлять."
+                        )
+                    else:
+                        hint = (
+                            "gh installed. Sign in: gh auth login\n"
+                            "(browser / device flow). Do not paste tokens into the app."
+                        )
+                    self.status("gh needs login")
+                    messagebox.showinfo("SYNC / gh auth", hint)
+                    return
+                self.sync_net()
+                return
+            self.status(r.get("error") or "gh required")
+            return
+        if r.get("need_login"):
+            hint = r.get("hint") or "gh auth login"
+            messagebox.showinfo("SYNC / gh auth", hint)
+            self.status("gh auth login needed")
+            return
+        if r.get("need_install") and r.get("tool") == "rclone":
+            url = r.get("url") or "https://rclone.org/install/"
+            if ru:
+                msg = "rclone не найден. Открыть инструкцию?\n" + url
+            else:
+                msg = "rclone not found. Open install docs?\n" + url
+            if messagebox.askyesno("SYNC / rclone", msg):
+                import webbrowser
+                webbrowser.open(url)
+            self.status(r.get("error") or "rclone missing")
+            return
+
         pull = r.get("pull") or {}
-        folder = r.get("folder") or ""
-        if folder.startswith("http"):
-            import webbrowser
-            webbrowser.open(folder)
-        elif folder:
-            core.open_path(Path(folder))
-        self.reload()
+        push = r.get("push") or {}
         if pull.get("ok"):
-            self.status("sync ok · imported " + str(pull.get("merged")))
+            self.reload()
+            core.persist_library(self.cfg, self.cats)
+            merged = pull.get("merged")
+            push_bit = ""
+            if push.get("pushed"):
+                push_bit = " · push ok"
+            elif push.get("error"):
+                push_bit = " · push: " + str(push.get("error"))[:80]
+            self.status(
+                ("sync ok · импорт " if ru else "sync ok · imported ")
+                + str(merged)
+                + push_bit
+            )
+            return
+
+        err = r.get("error") or pull.get("error") or push.get("error") or "no meta yet"
+        if push.get("pushed"):
+            self.status("dump+push ok · pull: " + str(err))
         else:
-            self.status("dump saved · pull: " + str(pull.get("error") or "no meta yet"))
+            self.status(("dump сохранён · " if ru else "dump saved · ") + str(err))
 
     def import_meta(self) -> None:
         path = filedialog.askopenfilename(title="Import dump JSON", filetypes=[("JSON", "*.json"), ("All", "*.*")])
@@ -1111,7 +1190,9 @@ class DepotUI:
         self.show_help()
 
     def dump_prompt(self) -> str:
-        path = core.APP_DIR / "CHAT_DUMP_PROMPT.md"
+        path = core.APP_DIR / "docs" / "CHAT_DUMP_PROMPT.md"
+        if not path.is_file():
+            path = core.APP_DIR / "CHAT_DUMP_PROMPT.md"
         if path.is_file():
             raw = path.read_text(encoding="utf-8")
             if "---" in raw:
@@ -1133,7 +1214,7 @@ class DepotUI:
             "2. SCAN — список заполняется.\n"
             "3. Чёрный квадрат = тип неясен. Нужен REPORT.\n"
             "4. REPORT пишет dump с деревом каждой папки — его в чат.\n"
-            "5. COPY PROMPT — промпт 0.1.35, старый не использовать.\n"
+            "5. COPY PROMPT — промпт 0.1.46, старый не использовать.\n"
             "6. Первый ответ того чата: принято, жду данные.\n"
             "7. Кидаешь JSON. Когда вернёт мета — SYNC или IMPORT.\n"
             "8. Плюс слева — новая группа.\n"

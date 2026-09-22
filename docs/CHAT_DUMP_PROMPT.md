@@ -1,5 +1,5 @@
 # Промпт для нового чата — обработчик дампа AW_FutaDepot
-# ПРОМПТ ИЗМЕНЁН 0.1.35 — скопируй заново.
+# ПРОМПТ ИЗМЕНЁН 0.1.46 — скопируй заново.
 
 Скопируй блок ниже целиком в новый чат. Первый ответ чата должен быть только: принято, жду данные.
 
@@ -68,3 +68,11 @@ localKind / localGroup — это НЕ истина. Это догадка ла�
 
 После JSON одной строкой: разобрано N из M, согласен K, опроверг L.
 Только метаданные.
+
+
+## After the chat returns JSON (0.1.46)
+
+1. Press **IMPORT** to merge the JSON into local `depot-meta.json`, or press **SYNC**.
+2. **SYNC** always writes a fresh report dump, then **uploads** `channel/depot-meta.json` (and `channel/depot-dump-latest.json` when under 8MB) to GitHub `2biteWolf/AW_FutaDepot` via `gh`.
+3. On another PC, **SYNC** **pulls** `channel/depot-meta.json` from the raw GitHub URL and merges it into local meta (same as IMPORT).
+4. Requires GitHub CLI (`gh`) on PATH and `gh auth login`. The UI offers winget install if `gh` is missing.

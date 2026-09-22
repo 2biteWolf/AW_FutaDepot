@@ -3,5 +3,10 @@
   "librarySet": false,
   "paths": {},
   "addedCategories": [],
-  "seenHelp": false
+  "seenHelp": false,
+  "syncTarget": "github",
+  "metaUrl": "https://raw.githubusercontent.com/2biteWolf/AW_FutaDepot/main/channel/depot-meta.json",
+  "dumpUrl": "https://raw.githubusercontent.com/2biteWolf/AW_FutaDepot/main/channel/depot-dump-latest.json",
+  "versionUrl": "https://raw.githubusercontent.com/2biteWolf/AW_FutaDepot/main/channel/version.json",
+  "driveFolder": ""
 }

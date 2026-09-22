@@ -1,5 +1,5 @@
 {
-  "version": "0.1.45",
-  "zip": "https://github.com/2biteWolf/AW_FutaDepot/releases/download/v0.1.45/AW_FutaDepot_0.1.45.zip",
-  "notes": "icons from .futa-db on refresh/launch"
+  "version": "0.1.46",
+  "zip": "https://github.com/2biteWolf/AW_FutaDepot/releases/download/v0.1.46/AW_FutaDepot_0.1.46.zip",
+  "notes": "SYNC pushes meta/dump to GitHub channel/; repo layout lib/docs/web"
 }

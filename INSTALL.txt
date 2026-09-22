@@ -1,4 +1,4 @@
-AW_FutaDepot 0.1.45 — install
+AW_FutaDepot 0.1.46 — install
 =============================
 
 What it is
@@ -8,7 +8,7 @@ Drop packs into _FutaMass (one file or folder = one tile).
 
 Quick install (PowerShell)
 --------------------------
-Expand-Archive -Path .\AW_FutaDepot_0.1.45.zip -DestinationPath .\AW_FutaDepot -Force
+Expand-Archive -Path .\AW_FutaDepot_0.1.46.zip -DestinationPath .\AW_FutaDepot -Force
 cd .\AW_FutaDepot
 .\START.bat
 
@@ -18,10 +18,14 @@ py -3 ui.py
 # Optional: install Python if missing
 winget install Python.Python.3.12
 
+# Optional: GitHub CLI for SYNC push/pull
+winget install GitHub.cli
+gh auth login
+
 Quick install (cmd)
 -------------------
 mkdir AW_FutaDepot
-tar -xf AW_FutaDepot_0.1.45.zip -C AW_FutaDepot
+tar -xf AW_FutaDepot_0.1.46.zip -C AW_FutaDepot
 cd AW_FutaDepot
 START.bat
 
@@ -29,22 +33,18 @@ Where to put files
 ------------------
 AW_FutaDepot/
   START.bat / AW_FutaDepot.exe   — launch
-  ui.py, app.py, ...             — program files (keep together)
-  _FutaMass/                     — YOUR library root (create packs here)
+  ui.py, app.py                  — entry points
+  lib/                           — helpers + catalog.json
+  docs/                          — SPEC, BF_FUTA, CHAT_DUMP_PROMPT
+  channel/                       — version.json + SYNC meta seed
+  web/                           — optional index.html
+  win/                           — go sources
+  _FutaMass/                     — YOUR library root
   icons-custom/                  — optional pasted icons (created by app)
-  config.json                    — created on first run (do not ship your personal one)
-  channel/version.json           — auto-update pointer
+  config.json                    — created on first run (do not ship personal one)
 
 Rules
 -----
 - Keep program files next to START.bat.
-- Do not overwrite an existing config.json / _FutaMass when updating — copy the new program files over, keep your library.
-- Updates: SETTINGS → UPDATE, or pull channel/version.json from GitHub.
-
-Update channel
---------------
-https://raw.githubusercontent.com/2biteWolf/AW_FutaDepot/main/channel/version.json
-
-Repo
-----
-https://github.com/2biteWolf/AW_FutaDepot
+- Do not overwrite your _FutaMass when unpacking a new zip.
+- SYNC needs gh on PATH (UI can offer winget install GitHub.cli).
